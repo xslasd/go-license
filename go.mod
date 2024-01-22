@@ -1,4 +1,4 @@
-module go-license
+module github.com/xslasd/go-license
 
 go 1.20
 

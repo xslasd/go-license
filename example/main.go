@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	client "go-license"
+	client "github.com/xslasd/go-license"
 	"os"
 )
 
