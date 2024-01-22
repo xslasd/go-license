@@ -18,7 +18,7 @@ type LicenseCli interface {
 	GetLicenseInfo() (*LicenseInfo, error)
 }
 ```
-Specific View: /client/example.
+Specific View:https://github.com/xslasd/go-license.
 
 ### go-licensemanage
 go-licensemanage Used for managing licenses. Main functions: parsing activation files and generating license files.
@@ -26,7 +26,7 @@ go-licensemanage Used for managing licenses. Main functions: parsing activation 
   GenerateLicense(rsaKey RSAKeyConfig, activationCode []byte, expiryTime int64, opts ...Option) ([]byte, error)
   GenerateRSAKey() (RSAKeyModel, error)
 ```
-Specific View: /manage/tools
+Specific View: https://github.com/xslasd/go-licensemanage
 
 # Third-party Library
 ```go
