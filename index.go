@@ -18,8 +18,8 @@ type GetValCallback func() (any, error)
 
 type LicenseCli interface {
 	GenerateActivationCode(opts ...GenerateOption) ([]byte, error)
-	ActivateLicense(licenseCode []byte) (bool, error)
-	VerifyLicense() (bool, error)
+	ActivateLicense(licenseCode []byte) error
+	VerifyLicense() bool
 	GetLicenseInfo() (*LicenseInfo, error)
 }
 
@@ -44,7 +44,7 @@ type client struct {
 type ActivationEncryptFunc func(plainText []byte, publicKey []byte) ([]byte, error)
 type LicenseDecryptFunc func(cipherByte []byte, privateKey []byte) ([]byte, error)
 
-type PollVerifyEvent func(pass bool, err error)
+type PollVerifyEvent func(licenseInfo *LicenseInfo, err error)
 
 type Option func(*client)
 
@@ -140,7 +140,7 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 		go func() {
 			for {
 				<-time.After(pollVerifyTime)
-				c.pollVerifyEvent(c.VerifyLicense())
+				c.pollVerifyEvent(c.GetLicenseInfo())
 			}
 		}()
 	}

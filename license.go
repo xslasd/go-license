@@ -19,22 +19,22 @@ type LicenseInfo struct {
 	NowActivationValues map[string]any `json:"now_activation_values"`
 }
 
-func (c client) VerifyLicense() (bool, error) {
+func (c client) VerifyLicense() bool {
 	_, err := c.GetLicenseInfo()
 	if err != nil {
-		return false, err
+		return false
 	}
-	return true, nil
+	return true
 }
 
-func (c client) ActivateLicense(licenseCode []byte) (bool, error) {
+func (c client) ActivateLicense(licenseCode []byte) error {
 	data, err := c.getServerLicenseInfo(licenseCode)
 	if err != nil {
-		return false, err
+		return err
 	}
 	err = c.verify(data)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if data.PollVerifyTime > 0 {
 		pollVerifyTime = data.PollVerifyTime
@@ -42,14 +42,14 @@ func (c client) ActivateLicense(licenseCode []byte) (bool, error) {
 
 	f, err := os.Create(c.licenseFileSavePath)
 	if err != nil {
-		return false, err
+		return err
 	}
 	defer f.Close()
 	_, err = f.Write(licenseCode)
 	if err != nil {
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 func (c client) GetLicenseInfo() (*LicenseInfo, error) {
