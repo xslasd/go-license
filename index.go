@@ -48,50 +48,50 @@ type PollVerifyEvent func(licenseInfo *LicenseInfo, err error)
 
 type Option func(*client)
 
-func WhitActivationEncryptFunc(fn ActivationEncryptFunc) Option {
+func WithActivationEncryptFunc(fn ActivationEncryptFunc) Option {
 	return func(config *client) {
 		config.activationEncryptFunc = fn
 	}
 }
-func WhitLicenseDecryptFunc(fn LicenseDecryptFunc) Option {
+func WithLicenseDecryptFunc(fn LicenseDecryptFunc) Option {
 	return func(config *client) {
 		config.licenseDecryptFunc = fn
 	}
 }
-func WhitOAEPHash(h hash.Hash) Option {
+func WithOAEPHash(h hash.Hash) Option {
 	return func(config *client) {
 		config.h = h
 	}
 }
-func WhitPollVerifyEvent(event PollVerifyEvent) Option {
+func WithPollVerifyEvent(event PollVerifyEvent) Option {
 	return func(config *client) {
 		config.pollVerifyEvent = event
 	}
 }
 
-func WhitAddActivationHandler(handler ActivationHandler) Option {
+func WithAddActivationHandler(handler ActivationHandler) Option {
 	return func(config *client) {
 		config.activationHandlerMap[handler.ItemKey()] = handler
 	}
 }
 
-func WhitActivationHandlerMap(handlerMap map[string]ActivationHandler) Option {
+func WithActivationHandlerMap(handlerMap map[string]ActivationHandler) Option {
 	return func(config *client) {
 		config.activationHandlerMap = handlerMap
 	}
 }
-func WhitIsLockSubject(isLock bool) Option {
+func WithIsLockSubject(isLock bool) Option {
 	return func(config *client) {
 		config.isLockSubject = isLock
 	}
 }
-func WhitDescription(description string) Option {
+func WithDescription(description string) Option {
 	return func(config *client) {
 		config.description = description
 	}
 }
 
-func WhitLicenseFileSavePath(path string) Option {
+func WithLicenseFileSavePath(path string) Option {
 	return func(config *client) {
 		config.licenseFileSavePath = path
 	}
