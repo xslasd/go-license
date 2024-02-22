@@ -142,8 +142,9 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 		if err != nil {
 			return nil, err
 		}
+		c.licenseFileSavePath = path.Join(c.licenseFileSavePath, c.licenseFileName)
 	}
-	c.licenseFileSavePath = path.Join(c.licenseFileSavePath, c.licenseFileName)
+
 	if c.pollVerifyEvent != nil {
 		go func() {
 			for {
