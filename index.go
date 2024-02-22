@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"hash"
 	"os"
+	"path"
 	"time"
 )
 
@@ -34,6 +35,7 @@ type client struct {
 	rsaKey RSAKeyConfig
 
 	licenseFileSavePath string
+	licenseFileName     string
 
 	activationHandlerMap map[string]ActivationHandler
 
@@ -96,6 +98,11 @@ func WithLicenseFileSavePath(path string) Option {
 		config.licenseFileSavePath = path
 	}
 }
+func WithLicenseFileName(name string) Option {
+	return func(config *client) {
+		config.licenseFileName = name
+	}
+}
 
 type RSAKeyConfig struct {
 	ActivationEncryptKey []byte
@@ -106,10 +113,10 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 	c := new(client)
 	c.subject = subject
 	c.rsaKey = rsaKey
+	c.licenseFileName = "license.key"
 	c.activationHandlerMap = map[string]ActivationHandler{
-		SystemOS_ItemKey: NewSystemOSInfo(),
-		CPUInfo_ItemKey:  NewCPUInfo(),
-
+		SystemOS_ItemKey:    NewSystemOSInfo(),
+		CPUInfo_ItemKey:     NewCPUInfo(),
 		ProgramPath_ItemKey: NewProgramPath(),
 	}
 	for _, o := range opts {
@@ -129,13 +136,14 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 	}
 
 	if c.licenseFileSavePath == "" {
-		c.licenseFileSavePath = "license.key"
+		c.licenseFileSavePath = c.licenseFileName
 	} else {
 		err := os.MkdirAll(c.licenseFileSavePath, os.ModeDir)
 		if err != nil {
 			return nil, err
 		}
 	}
+	c.licenseFileSavePath = path.Join(c.licenseFileSavePath, c.licenseFileName)
 	if c.pollVerifyEvent != nil {
 		go func() {
 			for {
