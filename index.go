@@ -113,7 +113,6 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 	c := new(client)
 	c.subject = subject
 	c.rsaKey = rsaKey
-	c.licenseFileName = "license.key"
 	c.activationHandlerMap = map[string]ActivationHandler{
 		SystemOS_ItemKey:    NewSystemOSInfo(),
 		CPUInfo_ItemKey:     NewCPUInfo(),
@@ -122,6 +121,10 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 	for _, o := range opts {
 		o(c)
 	}
+	if c.licenseFileName == "" {
+		c.licenseFileName = "license.key"
+	}
+
 	if len(c.activationHandlerMap) == 0 {
 		return nil, ActivationHandlerErr
 	}
