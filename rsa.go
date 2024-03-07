@@ -9,7 +9,10 @@ import (
 	"crypto/x509"
 	"encoding/binary"
 	"encoding/pem"
+	"errors"
 )
+
+var LicenseFileErr = errors.New("License file error")
 
 const pwdbit = 10
 
@@ -37,8 +40,14 @@ func (c client) encrypt(plainText []byte, publicKey []byte) ([]byte, error) {
 	return res, nil
 }
 func (c client) decrypt(cipherByte []byte, privateKey []byte) ([]byte, error) {
+	if len(cipherByte) < pwdbit {
+		return nil, LicenseFileErr
+	}
 	pwdLenByte := cipherByte[:pwdbit]
 	pwdLen := bytesToInt(pwdLenByte)
+	if len(cipherByte) < pwdbit+pwdLen {
+		return nil, LicenseFileErr
+	}
 	passwordEncrypt := cipherByte[pwdbit : pwdLen+pwdbit]
 	ciphertext := cipherByte[pwdbit+pwdLen:]
 	block, _ := pem.Decode(privateKey)
