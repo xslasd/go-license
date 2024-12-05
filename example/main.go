@@ -16,6 +16,9 @@ func main() {
 	var verifyLicense bool
 	flag.BoolVar(&verifyLicense, "VerifyLicense", false, "Verify License")
 
+	var onlineUsers int64
+	flag.Int64Var(&onlineUsers, "OnlineUsers", -1, "Online User Count Test")
+
 	var activationEncryptKeyDir string
 	var licenseDecryptKeyDir string
 	flag.StringVar(&activationEncryptKeyDir, "ActivationEncryptKeyDir", "./.client_key/activation_encrypt.pem", "Set encrypt activation public key file directory")
@@ -31,11 +34,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	opt := make([]client.Option, 0)
+	if onlineUsers > 0 {
+		onlineHandler := client.NewOnlineUsers(func() (int64, error) {
+			return onlineUsers, nil
+		})
+		opt = append(opt, client.WithAddActivationHandler(onlineHandler))
+	}
 	cli, err := client.NewLicenseCli(client.RSAKeyConfig{
 		ActivationEncryptKey: activationEncryptKey,
 		LicenseDecryptKey:    licenseDecryptKey,
-	}, "Demo License")
+	}, "Demo License", opt...)
 	if err != nil {
 		panic(err)
 	}

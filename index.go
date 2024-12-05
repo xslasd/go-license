@@ -15,8 +15,6 @@ type ActivationHandler interface {
 	CheckFn(data *LicenseInfo, v any) error
 }
 
-type GetValCallback func() (any, error)
-
 type LicenseCli interface {
 	GenerateActivationCode(opts ...GenerateOption) ([]byte, error)
 	ActivateLicense(licenseCode []byte) error
