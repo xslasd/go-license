@@ -58,7 +58,6 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-
 		f, err := os.Create("activation_code.key")
 		if err != nil {
 			panic(err)

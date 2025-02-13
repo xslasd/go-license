@@ -8,6 +8,7 @@ import (
 )
 
 type LicenseInfo struct {
+	LicenseKey     string        `json:"license_key" form:"license_key"`
 	Subject        string        `json:"subject"`
 	Description    string        `json:"description,omitempty"`
 	IssuedTime     int64         `json:"issued_time"`
@@ -27,29 +28,25 @@ func (c client) VerifyLicense() bool {
 	return true
 }
 
-func (c client) ActivateLicense(licenseCode []byte) error {
+func (c client) ActivateLicense(licenseCode []byte) (*LicenseInfo, error) {
 	data, err := c.getServerLicenseInfo(licenseCode)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = c.verify(data)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if data.PollVerifyTime > 0 {
-		pollVerifyTime = data.PollVerifyTime
-	}
-
 	f, err := os.Create(c.licenseFileSavePath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer f.Close()
 	_, err = f.Write(licenseCode)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return data, nil
 }
 
 func (c client) GetLicenseInfo() (*LicenseInfo, error) {
@@ -72,12 +69,12 @@ func (c client) verify(data *LicenseInfo) error {
 		return LicenseVerifyErr
 	}
 	if data.ExpiryTime > -1 {
-		c := time.Now()
+		t := time.Now()
 		e := time.UnixMilli(data.ExpiryTime)
-		if c.After(e) {
+		if t.After(e) {
 			return LicenseExpirationErr
 		}
-		data.NowActivationValues["end_time"] = e.Sub(c)
+		data.NowActivationValues["end_time"] = e.Sub(t)
 	}
 	for itemKey, item := range c.activationHandlerMap {
 		v := data.ActivationChecks[itemKey]

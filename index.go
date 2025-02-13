@@ -5,7 +5,6 @@ import (
 	"hash"
 	"os"
 	"path"
-	"time"
 )
 
 type ActivationHandler interface {
@@ -17,18 +16,15 @@ type ActivationHandler interface {
 
 type LicenseCli interface {
 	GenerateActivationCode(opts ...GenerateOption) ([]byte, error)
-	ActivateLicense(licenseCode []byte) error
+	ActivateLicense(licenseCode []byte) (*LicenseInfo, error)
 	VerifyLicense() bool
 	GetLicenseInfo() (*LicenseInfo, error)
 }
 
-var pollVerifyTime = time.Hour * 24
-
 type client struct {
-	subject         string
-	isLockSubject   bool
-	description     string
-	pollVerifyEvent PollVerifyEvent
+	subject       string
+	isLockSubject bool
+	description   string
 
 	rsaKey RSAKeyConfig
 
@@ -43,8 +39,6 @@ type client struct {
 }
 type ActivationEncryptFunc func(plainText []byte, publicKey []byte) ([]byte, error)
 type LicenseDecryptFunc func(cipherByte []byte, privateKey []byte) ([]byte, error)
-
-type PollVerifyEvent func(licenseInfo *LicenseInfo, err error)
 
 type Option func(*client)
 
@@ -61,11 +55,6 @@ func WithLicenseDecryptFunc(fn LicenseDecryptFunc) Option {
 func WithOAEPHash(h hash.Hash) Option {
 	return func(config *client) {
 		config.h = h
-	}
-}
-func WithPollVerifyEvent(event PollVerifyEvent) Option {
-	return func(config *client) {
-		config.pollVerifyEvent = event
 	}
 }
 
@@ -144,15 +133,6 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 			return nil, err
 		}
 		c.licenseFileSavePath = path.Join(c.licenseFileSavePath, c.licenseFileName)
-	}
-
-	if c.pollVerifyEvent != nil {
-		go func() {
-			for {
-				<-time.After(pollVerifyTime)
-				c.pollVerifyEvent(c.GetLicenseInfo())
-			}
-		}()
 	}
 	return c, nil
 }
