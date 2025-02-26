@@ -5,6 +5,7 @@ import (
 	"hash"
 	"os"
 	"path"
+	"time"
 )
 
 type ActivationHandler interface {
@@ -35,10 +36,12 @@ type client struct {
 
 	activationEncryptFunc ActivationEncryptFunc
 	licenseDecryptFunc    LicenseDecryptFunc
+	lastRecordedTimeFunc  LastRecordedTimeFunc
 	h                     hash.Hash
 }
 type ActivationEncryptFunc func(plainText []byte, publicKey []byte) ([]byte, error)
 type LicenseDecryptFunc func(cipherByte []byte, privateKey []byte) ([]byte, error)
+type LastRecordedTimeFunc func() time.Time
 
 type Option func(*client)
 
@@ -55,6 +58,12 @@ func WithLicenseDecryptFunc(fn LicenseDecryptFunc) Option {
 func WithOAEPHash(h hash.Hash) Option {
 	return func(config *client) {
 		config.h = h
+	}
+}
+
+func WithLastRecordedTimeFunc(fn LastRecordedTimeFunc) Option {
+	return func(config *client) {
+		config.lastRecordedTimeFunc = fn
 	}
 }
 

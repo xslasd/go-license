@@ -70,6 +70,12 @@ func (c client) verify(data *LicenseInfo) error {
 	}
 	if data.ExpiryTime > -1 {
 		t := time.Now()
+		if c.lastRecordedTimeFunc != nil {
+			lt := c.lastRecordedTimeFunc()
+			if lt.After(t) {
+				return LicenseExpirationErr
+			}
+		}
 		e := time.UnixMilli(data.ExpiryTime)
 		if t.After(e) {
 			return LicenseExpirationErr
