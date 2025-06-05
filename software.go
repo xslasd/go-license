@@ -47,7 +47,7 @@ func (o onlineUsers) CheckFn(data *LicenseInfo, v any) error {
 	if err != nil {
 		return ActivationChecksValErr
 	}
-	if v == nil || limit >= total.(int64) {
+	if limit == -1 || limit >= total.(int64) {
 		return nil
 	}
 	return OnlineUsersErr
