@@ -23,7 +23,7 @@ func (c client) encrypt(plainText []byte, publicKey []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	passwordEncrypt, err := rsa.EncryptOAEP(c.h, rand.Reader, pub, password, nil)
+	passwordEncrypt, err := rsa.EncryptOAEP(c.h(), rand.Reader, pub, password, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c client) decrypt(cipherByte []byte, privateKey []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	password, err := rsa.DecryptOAEP(c.h, rand.Reader, pri, passwordEncrypt, nil)
+	password, err := rsa.DecryptOAEP(c.h(), rand.Reader, pri, passwordEncrypt, nil)
 	if err != nil {
 		return nil, err
 	}

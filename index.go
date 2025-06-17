@@ -37,8 +37,9 @@ type client struct {
 	activationEncryptFunc ActivationEncryptFunc
 	licenseDecryptFunc    LicenseDecryptFunc
 	lastRecordedTimeFunc  LastRecordedTimeFunc
-	h                     hash.Hash
+	h                     NewHashFunc
 }
+type NewHashFunc func() hash.Hash
 type ActivationEncryptFunc func(plainText []byte, publicKey []byte) ([]byte, error)
 type LicenseDecryptFunc func(cipherByte []byte, privateKey []byte) ([]byte, error)
 type LastRecordedTimeFunc func() time.Time
@@ -55,9 +56,9 @@ func WithLicenseDecryptFunc(fn LicenseDecryptFunc) Option {
 		config.licenseDecryptFunc = fn
 	}
 }
-func WithOAEPHash(h hash.Hash) Option {
+func WithOAEPHash(fn NewHashFunc) Option {
 	return func(config *client) {
-		config.h = h
+		config.h = fn
 	}
 }
 
@@ -125,7 +126,9 @@ func NewLicenseCli(rsaKey RSAKeyConfig, subject string, opts ...Option) (License
 		return nil, ActivationHandlerErr
 	}
 	if c.h == nil {
-		c.h = sha1.New()
+		c.h = func() hash.Hash {
+			return sha1.New()
+		}
 	}
 	if c.activationEncryptFunc == nil {
 		c.activationEncryptFunc = c.encrypt
